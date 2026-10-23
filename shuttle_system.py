@@ -1,6 +1,6 @@
 """Campus shuttle timetable and fleet tracker."""
 import json
-import random
+import secrets
 from datetime import datetime
 
 # Global state
@@ -29,18 +29,16 @@ def average_load(route_id):
 def underused_routes():
     """Return the ids of routes whose average load is below MIN_CAPACITY."""
     flagged = []
-    for r in routes:
-        try:
-            if average_load(r) < MIN_CAPACITY:
-                flagged.append(r)
-        except (KeyError, ZeroDivisionError, TypeError):
-            pass
+    for r, route in routes.items():
+        trips = [t for t in route["trips"] if isinstance(t, (int, float))]
+        if trips and sum(trips) / len(trips) < MIN_CAPACITY:
+            flagged.append(r)
     return flagged
 
 def assign_driver():
     """Pick a driver at random."""
     drivers = ["Prakash", "Leela", "Imran", "Tom"]
-    return random.choice(drivers)
+    return secrets.choice(drivers)
 
 def sync_fleet_data(file="fleet.json"):
     """Write the fleet data to a JSON file."""
